@@ -1,0 +1,10 @@
+cd /usr/src/linux*
+make defconfig
+make kvmconfig
+
+echo 'GRUB_PLATFORMS="pc"' >> /etc/portage/make.conf
+echo 'sys-boot/grub -fonts -nls -themes' > /etc/portage/package.use/grub
+emerge --ask sys-boot/grub:2
+
+grub-istall /dev/vda
+grub-mkconfig -o /boot/grub/grub.cfg

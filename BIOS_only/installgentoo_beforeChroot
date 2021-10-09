@@ -1,0 +1,132 @@
+#!/bin/bash
+
+LRED='\033[01;31m'
+GREEN='\033[0;32m'
+LCYAN='\033[1;36m'
+LBLUE='\033[1;34m'
+LPURPLE='\033[0;35m'
+DGRAY='\033[1;30m'
+NC='\033[0m' # No Color
+
+MOUNT_LOCATION=/mnt/gentoo
+TIMEZONE=Europe/Helsinki
+
+CFLAGS="-march=native -O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+# Do NOT change CHOST setting
+CHOST="x86_64-pc-linux-gnu"
+
+# Choose desired USE flags
+USE="alsa usb"
+
+BOOT_PARTITION=/dev/sda1
+SWAP_PARTITION=/dev/sda2
+ROOT_PARTITION=/dev/sda3
+
+ROOT_FS_TYPE=ext4
+
+STAGE3=stage3/stage3*
+
+HOSTNAME="gentoo"
+
+PACKAGES="vim pciutils sys-kernel/gentoo-sources sys-kernel/linux-firmware sys-apps/iproute2 net-misc/dhcpcd net-wireless/wireless-tools net-wireless/iw net-wireless/wpa_supplicant"
+
+message ()
+{
+  echo
+  echo -e " $LBLUE>>> $LRED $@ $NC"
+}
+
+command ()
+{
+  echo -e "$LCYAN$@$NC"
+  $@
+  if [ $? -ne 0 ]; then
+    echo -e "$LREDFailed$NC"
+    exit 1
+  fi
+}
+
+install_gentoo_prep ()
+{
+  #Disk Setup
+  message "Beginning Installation Process"
+  message "Formating Boot Partition"
+  command mkfs.vfat $BOOT_PARTITION
+  message "Formating Swap Partition"
+  command mkswap $SWAP_PARTITION
+  command swapon $SWAP_PARTITION
+  message "Formating Root Partition"
+  command mkfs.${ROOT_FS_TYPE} $ROOT_PARTITION
+
+  #Mount Disks
+  message "Mounting Root and Boot partitions"
+  command mount -v $ROOT_PARTITION $MOUNT_LOCATION
+  command mkdir -pv ${MOUNT_LOCATION}/boot
+  command mount -v $BOOT_PARTITION ${MOUNT_LOCATION}/boot
+
+  message "Make sure that date and time is set correctly, if it isn't then it can cause problems in the future"
+  command date
+  message "Is the following date correct (y/n)?"
+  read DATE_CORRECT
+  if [ $DATE_CORRECT = "n" ]; then
+    message "Enter the date and time in MMDDhhmmYYYY format"
+    read CORRECTED_DATE
+    command date $CORRECTED_DATE
+  fi
+
+  #Stage3 Tarbal
+  message "Copying stage3 tarball to system"
+  command cp -rv $STAGE3 $MOUNT_LOCATION
+  command cd $MOUNT_LOCATION
+
+  message "Extracting stage3 tarball"
+  command tar xpvf stage3-*.tar.xz --xattrs
+
+  message "stage 3 tarball exstraction done. Now trying to chroot into target disk."
+
+  message "Mounting Necessary Filesystems"
+  command mount -t proc proc /mnt/gentoo/proc
+  command mount --rbind /sys /mnt/gentoo/sys
+  command mount --make-rslave /mnt/gentoo/sys
+  command mount --rbind /dev /mnt/gentoo/dev
+  command mount --make-rslave /mnt/gentoo/dev
+
+  message "Chrooting into System"
+  command chroot $MOUNT_LOCATION /bin/bash -c "install_gentoo_chroot"
+}
+
+install_gentoo_chroot()
+{
+}
+
+#exporting necessary functions and variables
+export -f install_gentoo_chroot
+export -f message
+export -f command
+
+export LRED
+export GREEN
+export LCYAN
+export LBLUE
+export LPURPLE
+export DGRAY
+export NC
+
+export PACKAGES
+export TIMEZONE
+export CFLAGS
+export CPU_FLAGS
+export USE_FLAGS
+export MAKE_OPTIONS
+#export BIOS_PARTITION
+export BOOT_PARTITION
+export SWAP_PARTITION
+export ROOT_PARTITION
+export ROOT_FS_TYPE
+export MAKE_OPTIONS
+export HOSTNAME
+export TOOLS
+
+#./get-latest-stage3
+install_gentoo_prep
