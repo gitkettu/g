@@ -1,1 +1,27 @@
+CFLAGS="-march=btver1 -O2 -pipe -mtune=btver1"
+CXXFLAGS="${CFLAGS}"
+CPU_FLAGS="${CFLAGS}"
+CPU_FLAGS_X86="mmx mmxext popcnt sse sse2 sse3 sse4a ssse3"
 
+# WARNING: Changing your CHOST is not something that should be done lightly.
+# Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.
+CHOST="x86_64-pc-linux-gnu"
+# These are the USE flags that were used in addition to what is provided by the
+# profile used for building.
+
+USE="threads mount fontconfig X savedconfig xinerama elogind suid harfbuzz icu dbus euse alsa -E jack gtk -kde -systemd -pulseaudio -vlc -bluetooth"
+MAKEOPTS="-j3"
+VIDEO_CARDS="radeon"
+INPUT_DEVICES="libinput synaptics"
+RUBY_TARGETS="ruby30 ruby27 ruby26"
+
+ACCEPT_KEYWORDS="~amd64"
+ACCEPT_LICENSE="*"
+EMERGE_DEFAULT_OPTS="${EMERGE_DEFAULT_OPTS} --autounmask=n"
+FEATURES="candy fixlafiles unmerge-orphans -preserve-libs"
+
+PORTDIR="/var/db/repos/gentoo"
+DISTDIR="/var/cache/distfiles"
+PKGDIR="/var/cache/packages"
+
+GRUB_PLATFORMS="pc"
