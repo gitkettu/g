@@ -1,4 +1,4 @@
-sudo apt-get install build-essential libx11-dev libxinerama-dev sharutils suckless-tools libxft-dev stterm sakura
+sudo apt-get install build-essential libx11-dev libxinerama-dev sharutils suckless-tools libxft-dev stterm sakura vim tree zsh git wget
 
 cd /usr/local/src
 sudo wget http://dl.suckless.org/dwm/dwm-6.2.tar.gz

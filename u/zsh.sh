@@ -1,4 +1,4 @@
-sudo apt install wget git
+sudo apt install wget git zsh
 
 wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
 
